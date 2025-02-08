@@ -45,6 +45,8 @@ SA-MP Rich Presence est un ASI pour SA-MP (San Andreas Multiplayer) qui met auto
     - [Implémentation du Protocole](#implémentation-du-protocole)
   - [Avantages de SA-MP Rich Presence](#avantages-de-sa-mp-rich-presence)
   - [Notes Techniques Supplémentaires](#notes-techniques-supplémentaires)
+  - [Licence](#licence)
+    - [Conditions](#conditions)
 
 ## Qu'est-ce qu'un ASI ?
 
@@ -555,3 +557,22 @@ bool Server_Query::Parse_Response(char* response_buffer, int received_bytes, Ser
     - Support de l'Unicode
     - Compatible avec Windows moderne
     - Support IPv4
+
+## Licence
+
+Cet ASI est protégé sous la Licence Apache 2.0, qui permet :
+
+- ✔️ Utilisation commerciale et privée
+- ✔️ Modification du code source
+- ✔️ Distribution du code
+- ✔️ Concession de brevets
+
+### Conditions
+
+- Conserver la notice de droits d'auteur
+- Documenter les modifications significatives
+- Inclure une copie de la licence Apache 2.0
+
+Pour plus de détails sur la licence : http://www.apache.org/licenses/LICENSE-2.0
+
+**Copyright (c) Calasans - Tous droits réservés**

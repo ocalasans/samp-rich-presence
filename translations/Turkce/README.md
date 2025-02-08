@@ -45,6 +45,8 @@ SA-MP Rich Presence, sunucu hakkında detaylı bilgileri Discord durumunuzda oto
     - [Protokol Uygulaması](#protokol-uygulaması)
   - [SA-MP Rich Presence'ın Faydaları](#sa-mp-rich-presenceın-faydaları)
   - [Ek Teknik Notlar](#ek-teknik-notlar)
+  - [Lisans](#lisans)
+    - [Koşullar:](#koşullar)
 
 ## ASI Nedir?
 
@@ -555,3 +557,22 @@ bool Server_Query::Parse_Response(char* response_buffer, int received_bytes, Ser
     - Unicode desteği.
     - Modern Windows ile uyumlu.
     - IPv4 desteği.
+
+## Lisans
+
+Bu ASI, Apache License 2.0 lisansı altında korunmaktadır ve şunlara izin verir:
+
+- ✔️ Ticari ve özel kullanım
+- ✔️ Kaynak kodunda değişiklik
+- ✔️ Kod dağıtımı
+- ✔️ Patent hakları
+
+### Koşullar:
+
+- Telif hakkı bildirimini korumak
+- Önemli değişiklikleri belgelemek
+- Apache License 2.0 lisansının bir kopyasını eklemek
+
+Lisans hakkında daha fazla bilgi için: http://www.apache.org/licenses/LICENSE-2.0
+
+**Telif Hakkı (c) Calasans - Tüm hakları saklıdır**
