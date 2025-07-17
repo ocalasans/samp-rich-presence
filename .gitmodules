@@ -4,3 +4,6 @@
 [submodule "src/libraries/json"]
 	path = src/libraries/json
 	url = https://github.com/nlohmann/json
+[submodule "src/libraries/dralyxor"]
+	path = src/libraries/dralyxor
+	url = https://github.com/ocalasans/dralyxor
