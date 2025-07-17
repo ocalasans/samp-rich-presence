@@ -1,0 +1,3 @@
+[submodule "src/libraries/discord-rpc"]
+	path = src/libraries/discord-rpc
+	url = https://github.com/discord/discord-rpc
