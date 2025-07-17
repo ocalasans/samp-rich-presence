@@ -127,7 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;SAMPRICHPRESENCE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -141,10 +141,15 @@
   <PropertyGroup>
     <TargetExt>.asi</TargetExt>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)compiled\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)compiled\$(ShortProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)discord</AdditionalLibraryDirectories>
-      <AdditionalDependencies>discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
@@ -155,23 +160,28 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </Command>
     </PostBuildEvent>
+    <ClCompile>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp20</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="command_line_parser.h" />
-    <ClInclude Include="constants.h" />
-    <ClInclude Include="discord\discord_rpc.h" />
-    <ClInclude Include="discord_manager.h" />
-    <ClInclude Include="network_manager.h" />
-    <ClInclude Include="server_manager.h" />
-    <ClInclude Include="server_query.h" />
-    <ClInclude Include="server_types.h" />
-    <ClInclude Include="url_manager.h" />
+    <ClInclude Include="asi_update.hpp" />
+    <ClInclude Include="command_line_parser.hpp" />
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="discord_manager.hpp" />
+    <ClInclude Include="samp_network.hpp" />
+    <ClInclude Include="secrets.hpp" />
+    <ClInclude Include="server_manager.hpp" />
+    <ClInclude Include="server_query.hpp" />
+    <ClInclude Include="server_types.hpp" />
+    <ClInclude Include="url_manager.hpp" />
+    <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="command_line_parser.cpp" />
     <ClCompile Include="discord_manager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="network_manager.cpp" />
+    <ClCompile Include="samp_network.cpp" />
     <ClCompile Include="server_manager.cpp" />
     <ClCompile Include="server_query.cpp" />
     <ClCompile Include="url_manager.cpp" />
