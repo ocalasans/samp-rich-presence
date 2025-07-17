@@ -1,65 +1,108 @@
-/*
- * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)
- * Copyright (c) Calasans
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+/* ============================================================================= *
+ * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)                 *
+ * ============================================================================= *
+ *                                                                               *
+ * Copyright (c) 2025, Calasans | All rights reserved.                           *
+ *                                                                               *
+ * Developed by: Calasans                                                        *
+ * Repository: https://github.com/ocalasans/samp-rich-presence                   *
+ *                                                                               *
+ * ============================================================================= *
+ *                                                                               *
+ * Licensed under the Apache License, Version 2.0 (the "License");               *
+ * you may not use this file except in compliance with the License.              *
+ * You may obtain a copy of the License at:                                      *
+ *                                                                               *
+ *     http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                               *
+ * Unless required by applicable law or agreed to in writing, software           *
+ * distributed under the License is distributed on an "AS IS" BASIS,             *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.      *
+ * See the License for the specific language governing permissions and           *
+ * limitations under the License.                                                *
+ *                                                                               *
+ * ============================================================================= */
 
-#include "server_manager.h"
-#include "constants.h"
-#include <chrono>
+#include <utility>
+//
+#include "server_manager.hpp"
+#include "constants.hpp"
 
-Server_Manager::Server_Manager(const std::string& ip, int port, const std::string& name)
-    : connection_status(false)
-    , server_ip(ip)
-    , server_port(port)
-    , player_name(name)
-    , current_image_url(Constants::DEFAULT_IMAGE)
-    , network_manager()
-    , server_query(network_manager)
-    , last_successful_query(std::chrono::steady_clock::now())
-{}
-
-Server_Manager::~Server_Manager() = default;
+Server_Manager::Server_Manager(std::string ip, int port, std::string name) : server_ip(std::move(ip)),
+    server_port(port),
+    player_name(std::move(name)),
+    connection_status(false),
+    live_server_data{},
+    display_server_data{},
+    display_image_url(Constants::DEFAULT_IMAGE),
+    current_display_social{},
+    last_successful_query{},
+    last_api_update{},
+    last_social_rotation{},
+    network_manager(),
+    server_query(network_manager),
+    url_manager() {}
 
 bool Server_Manager::Initialize() {
-    current_image_url = Constants::DEFAULT_IMAGE;
+    if (!network_manager.Initialize(server_ip, server_port))
+        return false;
 
-    return network_manager.Initialize(server_ip, server_port);
+    Update();
+
+    return true;
 }
 
-bool Server_Manager::Update() {
-    bool query_success = server_query.Query(server_data);
-    auto current_time = std::chrono::steady_clock::now();
-    
-    if (query_success) {
-        connection_status = true;
-        last_successful_query = current_time;
-        server_data.Server_Address = Get_Server_Address();
-        std::string new_image_url = url_manager.Get_Image_URL(server_data.Server_Address);
-        
-        if (!new_image_url.empty())
-            current_image_url = new_image_url;
+void Server_Manager::Fetch_API_Data() {
+    display_image_url = url_manager.Get_Image_URL_And_Populate_Socials(server_ip, server_port, live_server_data);
+
+    last_api_update = std::chrono::steady_clock::now();
+    current_social_index_ = 0;
+
+    Rotate_Social_Link();
+}
+
+void Server_Manager::Rotate_Social_Link() {
+    if (!live_server_data.Social_Links.empty()) {
+        if (current_social_index_ >= live_server_data.Social_Links.size())
+            current_social_index_ = 0;
+
+        current_display_social = live_server_data.Social_Links[current_social_index_];
+        current_social_index_ = (current_social_index_ + 1) % live_server_data.Social_Links.size();
+    }
+    else
+        current_display_social = {};
+
+    last_social_rotation = std::chrono::steady_clock::now();
+}
+
+void Server_Manager::Update() {
+    const auto now = std::chrono::steady_clock::now();
+
+    if (server_query.Query(live_server_data)) {
+        if (!connection_status) {
+            connection_status = true;
+            Fetch_API_Data();
+        }
+
+        last_successful_query = now;
+
+        display_server_data.Hostname = live_server_data.Hostname;
+        display_server_data.Players = live_server_data.Players;
+        display_server_data.Max_Players = live_server_data.Max_Players;
+        display_server_data.Server_Address = server_ip + ":" + std::to_string(server_port);
+
+        if (now - last_api_update > Constants::IMAGE_UPDATE_INTERVAL)
+            Fetch_API_Data();
+
+        if (now - last_social_rotation > Constants::SOCIAL_UPDATE_INTERVAL)
+            Rotate_Social_Link();
     }
     else {
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(
-            current_time - last_successful_query);
-        
-        if (duration.count() > 15) {
+        if (connection_status && (now - last_successful_query > std::chrono::seconds(15))) {
             connection_status = false;
-            current_image_url = Constants::DEFAULT_IMAGE;
+            display_image_url = Constants::DEFAULT_IMAGE;
+            display_server_data = {};
+            current_display_social = {};
         }
     }
-    
-    return true;
 }

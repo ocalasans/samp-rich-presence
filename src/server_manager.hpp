@@ -1,53 +1,87 @@
-/*
- * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)
- * Copyright (c) Calasans
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+/* ============================================================================= *
+ * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)                 *
+ * ============================================================================= *
+ *                                                                               *
+ * Copyright (c) 2025, Calasans | All rights reserved.                           *
+ *                                                                               *
+ * Developed by: Calasans                                                        *
+ * Repository: https://github.com/ocalasans/samp-rich-presence                   *
+ *                                                                               *
+ * ============================================================================= *
+ *                                                                               *
+ * Licensed under the Apache License, Version 2.0 (the "License");               *
+ * you may not use this file except in compliance with the License.              *
+ * You may obtain a copy of the License at:                                      *
+ *                                                                               *
+ *     http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                               *
+ * Unless required by applicable law or agreed to in writing, software           *
+ * distributed under the License is distributed on an "AS IS" BASIS,             *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.      *
+ * See the License for the specific language governing permissions and           *
+ * limitations under the License.                                                *
+ *                                                                               *
+ * ============================================================================= */
 
-#ifndef SERVER_MANAGER_H
-    #define SERVER_MANAGER_H
+#pragma once
 
-    #include <string>
-    #include <chrono>
-    #include "server_types.h"
-    #include "network_manager.h"
-    #include "server_query.h"
-    #include "url_manager.h"
+#include <string>
+#include <chrono>
+#include <memory>
+//
+#include "server_types.hpp"
+#include "samp_network.hpp"
+#include "server_query.hpp"
+#include "url_manager.hpp"
 
-    class Server_Manager {
-        public:
-            Server_Manager(const std::string& ip, int port, const std::string& name);
-            ~Server_Manager();
+class Server_Manager {
+    public:
+        Server_Manager(std::string ip, int port, std::string name);
+        ~Server_Manager() = default;
 
-            bool Initialize();
-            bool Update();
-            bool Is_Connected() const { return connection_status; }
-            const Server_Information& Get_Info() const { return server_data; }
-            std::string Get_Player_Name() const { return player_name; }
-            std::string Get_Server_Address() const { return server_ip + ":" + std::to_string(server_port); }
-            std::string Get_Current_Image() const { return current_image_url; }
-        private:
-            bool connection_status;
-            std::string server_ip;
-            int server_port;
-            std::string player_name;
-            std::string current_image_url;
-            Server_Information server_data;
-            std::chrono::steady_clock::time_point last_successful_query;
+        bool Initialize();
+        void Update();
 
-            Network_Manager network_manager;
-            Server_Query server_query;
-            URL_Manager url_manager;
-    };
-#endif
+        [[nodiscard]] bool Is_Connected() const {
+            return connection_status;
+        }
+
+        [[nodiscard]] const Server_Information& Get_Server_Info() const {
+            return display_server_data;
+        }
+
+        [[nodiscard]] const std::string& Get_Player_Name() const {
+            return player_name;
+        }
+
+        [[nodiscard]] const std::string& Get_Current_Image_URL() const {
+            return display_image_url;
+        }
+
+        [[nodiscard]] const server_types::Social_Link& Get_Display_Social_Link() const {
+            return current_display_social;
+        }
+    private:
+        void Fetch_API_Data();
+        void Rotate_Social_Link();
+
+        const std::string server_ip;
+        const int server_port;
+        const std::string player_name;
+
+        bool connection_status;
+        Server_Information live_server_data;
+        Server_Information display_server_data;
+        std::string display_image_url;
+
+        server_types::Social_Link current_display_social;
+        size_t current_social_index_{0};
+
+        std::chrono::steady_clock::time_point last_successful_query;
+        std::chrono::steady_clock::time_point last_api_update;
+        std::chrono::steady_clock::time_point last_social_rotation;
+
+        Samp_Network network_manager;
+        Server_Query server_query;
+        URL_Manager url_manager;
+};

@@ -1,110 +1,113 @@
-/*
- * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)
- * Copyright (c) Calasans
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+/* ============================================================================= *
+ * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)                 *
+ * ============================================================================= *
+ *                                                                               *
+ * Copyright (c) 2025, Calasans | All rights reserved.                           *
+ *                                                                               *
+ * Developed by: Calasans                                                        *
+ * Repository: https://github.com/ocalasans/samp-rich-presence                   *
+ *                                                                               *
+ * ============================================================================= *
+ *                                                                               *
+ * Licensed under the Apache License, Version 2.0 (the "License");               *
+ * you may not use this file except in compliance with the License.              *
+ * You may obtain a copy of the License at:                                      *
+ *                                                                               *
+ *     http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                               *
+ * Unless required by applicable law or agreed to in writing, software           *
+ * distributed under the License is distributed on an "AS IS" BASIS,             *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.      *
+ * See the License for the specific language governing permissions and           *
+ * limitations under the License.                                                *
+ *                                                                               *
+ * ============================================================================= */
 
-#include "server_query.h"
-#include "constants.h"
 #include <thread>
 #include <chrono>
+#include <cstring>
+#include <array>
+//
+#include "server_query.hpp"
+#include "constants.hpp"
 
-Server_Query::Server_Query(Network_Manager& network) noexcept : network_manager(network) {}
+Server_Query::Server_Query(Samp_Network& network) noexcept : network_manager(network) {}
 
 bool Server_Query::Query(Server_Information& server_data) noexcept {
-    return Try_Query(server_data, Constants::MAX_RETRY_ATTEMPTS);
-}
+    for (int attempt = 0; attempt < Constants::MAX_RETRY_ATTEMPTS; ++attempt) {
+        if (Try_Query(server_data))
+            return true;
 
-bool Server_Query::Try_Query(Server_Information& server_data, int retry_count) noexcept {
-    alignas(16) char query_packet[Constants::QUERY_PACKET_SIZE] = {};
-
-    if (!Assemble_Query_Packet(query_packet))
-        return false;
-
-    alignas(16) char response_buffer[Constants::QUERY_BUFFER_SIZE] = {};
-    int received_bytes;
-
-    for (int attempt = 0; attempt <= retry_count; attempt++) {
-        if (network_manager.Send_Query(query_packet, response_buffer, &received_bytes)) {
-            if (Parse_Response(response_buffer, received_bytes, server_data))
-                return true;
-        }
-
-        if (attempt < retry_count)
-            std::this_thread::sleep_for(std::chrono::milliseconds(100 * (attempt + 1)));
+        if (attempt < Constants::MAX_RETRY_ATTEMPTS - 1)
+            std::this_thread::sleep_for(std::chrono::milliseconds(250 * (attempt + 1)));
     }
 
     return false;
 }
 
-bool Server_Query::Assemble_Query_Packet(char* packet) noexcept {
-    memcpy(packet, QUERY_SIGNATURE, 4);
+bool Server_Query::Try_Query(Server_Information& server_data) noexcept {
+    std::array<char, Constants::QUERY_PACKET_SIZE> query_packet{};
+    Assemble_Query_Packet(query_packet);
+
+    std::array<char, Constants::QUERY_BUFFER_SIZE> response_buffer{};
+    int received_bytes = 0;
+
+    if (network_manager.Send_Query(query_packet, response_buffer, received_bytes))
+        return Parse_Response({ response_buffer.data(), static_cast<size_t>(received_bytes) }, server_data);
+
+    return false;
+}
+
+void Server_Query::Assemble_Query_Packet(std::span<char> packet) const noexcept {
+    memcpy(packet.data(), QUERY_SIGNATURE, sizeof(QUERY_SIGNATURE) - 1);
     packet[10] = 'i';
+}
+
+template<typename T>
+bool Server_Query::Read_From_Span(std::span<const char>& s, T& value) noexcept {
+    if (s.size() < sizeof(T))
+        return false;
+
+    memcpy(&value, s.data(), sizeof(T));
+    s = s.subspan(sizeof(T));
 
     return true;
 }
 
-bool Server_Query::Parse_Response(char* response_buffer, int received_bytes, Server_Information& server_data) noexcept {
-    if (received_bytes <= Constants::QUERY_PACKET_SIZE)
+bool Server_Query::Read_String_From_Span(std::span<const char>& s, std::string& str) noexcept {
+    uint32_t length = 0;
+
+    if (!Read_From_Span(s, length))
         return false;
 
-    char* current_pos = response_buffer + Constants::QUERY_PACKET_SIZE;
-    const char* buffer_end = response_buffer + received_bytes;
-
-    current_pos += sizeof(bool);
-
-    if (current_pos + sizeof(server_data.Players) + sizeof(server_data.Max_Players) > buffer_end)
+    if (s.size() < length)
         return false;
 
-    memcpy(&server_data.Players, current_pos, sizeof(server_data.Players));
-    current_pos += sizeof(server_data.Players);
-    memcpy(&server_data.Max_Players, current_pos, sizeof(server_data.Max_Players));
-    current_pos += sizeof(server_data.Max_Players);
+    str.assign(s.data(), length);
+    s = s.subspan(length);
 
-    auto read_string = [](char*& pos, const char* end, std::string& str) noexcept -> bool {
-        if (pos + sizeof(uint32_t) > end)
-            return false;
+    return true;
+}
 
-        uint32_t length;
-        memcpy(&length, pos, sizeof(length));
-        pos += sizeof(length);
-
-        if (pos + length > end)
-            return false;
-
-        str.assign(pos, length);
-        pos += length;
-
-        return true;
-    };
-
-    if (!read_string(current_pos, buffer_end, server_data.Hostname))
+bool Server_Query::Parse_Response(std::span<const char> response, Server_Information& server_data) noexcept {
+    if (response.size() <= Constants::QUERY_PACKET_SIZE)
         return false;
 
-    uint32_t length;
-    
-    if (current_pos + sizeof(uint32_t) > buffer_end)
+    auto data_span = response.subspan(Constants::QUERY_PACKET_SIZE);
+
+    [[maybe_unused]] bool passworded;
+
+    if (!Read_From_Span(data_span, passworded))
         return false;
 
-    memcpy(&length, current_pos, sizeof(length));
-    current_pos += sizeof(length) + length;
-
-    if (current_pos + sizeof(uint32_t) > buffer_end)
+    if (!Read_From_Span(data_span, server_data.Players))
         return false;
 
-    memcpy(&length, current_pos, sizeof(length));
-    current_pos += sizeof(length) + length;
+    if (!Read_From_Span(data_span, server_data.Max_Players))
+        return false;
+
+    if (!Read_String_From_Span(data_span, server_data.Hostname))
+        return false;
 
     return true;
 }

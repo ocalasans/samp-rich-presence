@@ -25,23 +25,40 @@
 
 #pragma once
 
-#include <string_view>
-#include <string>
-#include <ctime>
-//
-#include "libraries/Discord/discord_rpc.h"
-#pragma comment(lib, "libraries/Discord/discord-rpc.lib") 
-//
-#include "server_types.hpp"
+#include "libraries/Dralyxor/dralyxor.hpp"
 
-class Discord_Manager {
-    public:
-        Discord_Manager() noexcept;
+namespace Secrets {
+    namespace {
+        inline auto& Get_Obfuscated_Discord_App_ID() {
+            static auto& dc_app_id_obfuscated = DRALYXOR_KEY("DISCORD_APP_ID", "KEY_THAT_ONLY_YOU_KNOW");
 
-        void Initialize() noexcept;
-        void Update_Presence(const Server_Information& server_info, const server_types::Social_Link& social_link, std::string_view player_name, std::string_view current_image, bool is_connected) noexcept;
-        void Shutdown() noexcept;
-    private:
-        time_t start_timestamp_{ 0 };
-        std::string current_small_image_key_;
-};
+            return dc_app_id_obfuscated;
+        }
+
+        inline auto& Get_Obfuscated_API_Host() {
+            static auto& API_host_obfuscated = DRALYXOR_KEY("example.com", "KEY_THAT_ONLY_YOU_KNOW");
+
+            return API_host_obfuscated;
+        }
+
+        inline auto& Get_Obfuscated_API_Path() {
+            static auto& API_path_obfuscated = DRALYXOR_KEY("/path/spc-integration-api.php", "KEY_THAT_ONLY_YOU_KNOW");
+
+            return API_path_obfuscated;
+        }
+    }
+
+    namespace Detail {
+        inline auto& Get_Discord_App_ID() {
+            return Get_Obfuscated_Discord_App_ID();
+        }
+
+        inline auto& Get_API_Host() {
+            return Get_Obfuscated_API_Host();
+        }
+
+        inline auto& Get_API_Path() {
+            return Get_Obfuscated_API_Path();
+        }
+    }
+}

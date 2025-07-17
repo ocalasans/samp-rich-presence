@@ -1,70 +1,68 @@
-/*
- * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)
- * Copyright (c) Calasans
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+/* ============================================================================= *
+ * SA-MP Rich Presence - ASI for SA-MP (San Andreas Multiplayer)                 *
+ * ============================================================================= *
+ *                                                                               *
+ * Copyright (c) 2025, Calasans | All rights reserved.                           *
+ *                                                                               *
+ * Developed by: Calasans                                                        *
+ * Repository: https://github.com/ocalasans/samp-rich-presence                   *
+ *                                                                               *
+ * ============================================================================= *
+ *                                                                               *
+ * Licensed under the Apache License, Version 2.0 (the "License");               *
+ * you may not use this file except in compliance with the License.              *
+ * You may obtain a copy of the License at:                                      *
+ *                                                                               *
+ *     http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                               *
+ * Unless required by applicable law or agreed to in writing, software           *
+ * distributed under the License is distributed on an "AS IS" BASIS,             *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.      *
+ * See the License for the specific language governing permissions and           *
+ * limitations under the License.                                                *
+ *                                                                               *
+ * ============================================================================= */
 
-#include "command_line_parser.h"
-#include "constants.h"
+#include <stdexcept>
+//
+#include "command_line_parser.hpp"
+#include "constants.hpp"
+#include "utils.hpp"
 
-bool Command_Line_Parser::Parse(const wchar_t* command_line, std::string& server_ip, int& server_port, std::string& player_name) {
+bool Command_Line_Parser::Parse(const std::wstring_view command_line, std::string& server_ip, int& server_port, std::string& player_name) {
     server_ip = Constants::DEFAULT_SERVER_IP;
     server_port = Constants::DEFAULT_SERVER_PORT;
 
-    std::wstring command_string(command_line);
+    if (const auto ip_param = Parse_Parameter(command_line, L"-h"); !ip_param.empty())
+        server_ip = Utils::Convert_Wide_To_Utf8_String(ip_param);
 
-    std::wstring ip_parameter = Parse_Parameter(command_string, L"-h");
+    if (const auto port_param = Parse_Parameter(command_line, L"-p"); !port_param.empty()) {
+        try {
+            server_port = std::stoi(std::wstring(port_param));
+        }
+        catch (const std::invalid_argument&) {}
+        catch (const std::out_of_range&) {}
+    }
 
-    if (!ip_parameter.empty())
-        server_ip = Convert_To_String(ip_parameter);
-
-    std::wstring port_parameter = Parse_Parameter(command_string, L"-p");
-
-    if (!port_parameter.empty())
-        server_port = std::stoi(port_parameter);
-
-    std::wstring name_parameter = Parse_Parameter(command_string, L"-n");
-
-    if (!name_parameter.empty())
-        player_name = Convert_To_String(name_parameter);
+    if (const auto name_param = Parse_Parameter(command_line, L"-n"); !name_param.empty())
+        player_name = Utils::Convert_Wide_To_Utf8_String(name_param);
 
     return !server_ip.empty() && server_port > 0 && !player_name.empty();
 }
 
-std::wstring Command_Line_Parser::Parse_Parameter(const std::wstring& command_string, const wchar_t* parameter) {
-    size_t position = command_string.find(parameter);
+std::wstring Command_Line_Parser::Parse_Parameter(const std::wstring_view command_string, const std::wstring_view parameter) {
+    if (const size_t position = command_string.find(parameter); position != std::wstring_view::npos) {
+        size_t value_start = position + parameter.length();
 
-    if (position != std::wstring::npos) {
-        position += wcslen(parameter) + 1;
-        size_t end_position = command_string.find(L" ", position);
+        value_start = command_string.find_first_not_of(L" \t", value_start);
 
-        if (end_position == std::wstring::npos)
-            end_position = command_string.length();
+        if (value_start == std::wstring_view::npos)
+            return L"";
 
-        return command_string.substr(position, end_position - position);
+        const size_t value_end = command_string.find(L' ', value_start);
+
+        return std::wstring(command_string.substr(value_start, value_end - value_start));
     }
 
     return L"";
-}
-
-std::string Command_Line_Parser::Convert_To_String(const std::wstring& wide_string) {
-    if (wide_string.empty()) 
-        return "";
-
-    int required_size = WideCharToMultiByte(CP_UTF8, 0, wide_string.c_str(), -1, NULL, 0, NULL, NULL);
-    std::string result(required_size - 1, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wide_string.c_str(), -1, &result[0], required_size, NULL, NULL);
-
-    return result;
 }

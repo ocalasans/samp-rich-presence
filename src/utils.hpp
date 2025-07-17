@@ -25,23 +25,38 @@
 
 #pragma once
 
-#include <string_view>
 #include <string>
-#include <ctime>
-//
-#include "libraries/Discord/discord_rpc.h"
-#pragma comment(lib, "libraries/Discord/discord-rpc.lib") 
-//
-#include "server_types.hpp"
+#include <string_view>
+#include <windows.h>
 
-class Discord_Manager {
-    public:
-        Discord_Manager() noexcept;
+namespace Utils {
+    inline std::string Convert_Wide_To_Utf8_String(const std::wstring_view wide_string) {
+        if (wide_string.empty())
+            return "";
 
-        void Initialize() noexcept;
-        void Update_Presence(const Server_Information& server_info, const server_types::Social_Link& social_link, std::string_view player_name, std::string_view current_image, bool is_connected) noexcept;
-        void Shutdown() noexcept;
-    private:
-        time_t start_timestamp_{ 0 };
-        std::string current_small_image_key_;
-};
+        const int required_size = WideCharToMultiByte(CP_UTF8, 0, wide_string.data(), static_cast<int>(wide_string.length()), nullptr, 0, nullptr, nullptr);
+
+        if (required_size == 0)
+            return "";
+
+        std::string result(required_size, 0);
+        WideCharToMultiByte(CP_UTF8, 0, wide_string.data(), static_cast<int>(wide_string.length()), result.data(), required_size, nullptr, nullptr);
+
+        return result;
+    }
+
+    inline std::wstring Convert_Utf8_To_Wide_String(const std::string_view narrow_string) {
+        if (narrow_string.empty())
+            return L"";
+
+        const int required_size = MultiByteToWideChar(CP_UTF8, 0, narrow_string.data(), static_cast<int>(narrow_string.length()), nullptr, 0);
+
+        if (required_size == 0)
+            return L"";
+
+        std::wstring wide_string(required_size, 0);
+        MultiByteToWideChar(CP_UTF8, 0, narrow_string.data(), static_cast<int>(narrow_string.length()), wide_string.data(), required_size);
+
+        return wide_string;
+    }
+}
