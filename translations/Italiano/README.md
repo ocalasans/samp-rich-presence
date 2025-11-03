@@ -24,10 +24,10 @@ Il **SA-MP Rich Presence** è un **ASI** per **SA-MP (San Andreas Multiplayer)**
     - [Sistema di Aggiornamento Automatico](#sistema-di-aggiornamento-automatico)
   - [Requisiti](#requisiti)
   - [Installazione](#installazione)
-  - [Integrazione con l'SPC Integration API](#integrazione-con-lspc-integration-api)
+  - [Integrazione con l'AlderGrounds Integration API](#integrazione-con-laldergrounds-integration-api)
     - [Come vengono ottenute e utilizzate le informazioni:](#come-vengono-ottenute-e-utilizzate-le-informazioni)
   - [Per gli Sviluppatori di Server](#per-gli-sviluppatori-di-server)
-    - [Come implementare l'SPC Integration nel tuo server:](#come-implementare-lspc-integration-nel-tuo-server)
+    - [Come implementare l'AlderGrounds Integration nel tuo server:](#come-implementare-laldergrounds-integration-nel-tuo-server)
   - [Architettura Tecnica Dettagliata](#architettura-tecnica-dettagliata)
       - [Sistema Principale (`main.cpp`)](#sistema-principale-maincpp)
       - [Sistema di Aggiornamento (`asi_update.hpp`)](#sistema-di-aggiornamento-asi_updatehpp)
@@ -77,7 +77,7 @@ Questa funzionalità garantisce che gli utenti abbiano sempre accesso alle ultim
 
 ## Requisiti
 
-- Cliente SA-MP (se non lo possiedi: [clients-samp](https://github.com/spc-samp/clients-samp)).
+- Cliente SA-MP (se non lo possiedi: [clients-samp](https://github.com/aldergrounds/clients-samp)).
 - Applicazione Discord Desktop.
 - Sistema Operativo Windows.
 - Visual C++ Runtime.
@@ -91,14 +91,14 @@ Questa funzionalità garantisce che gli utenti abbiano sempre accesso alle ultim
 4. Avvia il gioco tramite il cliente SA-MP.
 5. L'**ASI** verrà caricato e inizializzato automaticamente quando ti connetti a un server, aggiornando il tuo stato su Discord.
 
-## Integrazione con l'SPC Integration API
+## Integrazione con l'AlderGrounds Integration API
 
-Il **SA-MP Rich Presence** migliora significativamente la visualizzazione delle informazioni su Discord attraverso la sua integrazione con l'**SPC Integration API**. Invece di dipendere solo dai dati di query di base, l'**ASI** ora interagisce direttamente con questa API per ottenere informazioni visive e sociali del server. Per saperne di più sull'**SPC Integration**, visita il repository ufficiale: [spc-samp/spc-integration](https://github.com/spc-samp/spc-integration).
+Il **SA-MP Rich Presence** migliora significativamente la visualizzazione delle informazioni su Discord attraverso la sua integrazione con l'**AlderGrounds Integration API**. Invece di dipendere solo dai dati di query di base, l'**ASI** ora interagisce direttamente con questa API per ottenere informazioni visive e sociali del server. Per saperne di più sull'**AlderGrounds Integration**, visita il repository ufficiale: [aldergrounds/integration](https://github.com/aldergrounds/integration).
 
 ### Come vengono ottenute e utilizzate le informazioni:
 
 1. **Formattazione dell'indirizzo:** Quando il giocatore si connette a un server (IP e Porta), l'**ASI** formatta questo indirizzo (`IP:PORTA`) in un formato amichevole (`IP-PORTA`), preparandolo per la richiesta dell'API.
-2. **Richiesta all'API:** L'**ASI** invia una richiesta `GET` all'endpoint dell'**SPC Integration API**, includendo l'IP e la porta formattati. Esempio di come l'URL della richiesta viene costruito internamente:
+2. **Richiesta all'API:** L'**ASI** invia una richiesta `GET` all'endpoint dell'**AlderGrounds Integration API**, includendo l'IP e la porta formattati. Esempio di come l'URL della richiesta viene costruito internamente:
    ```cpp
    // Trecho adaptado de url_manager.cpp
    auto api_path_accessor = DRALYXOR_SECURE(Secrets::Detail::Get_API_Path());
@@ -108,7 +108,7 @@ Il **SA-MP Rich Presence** migliora significativamente la visualizzazione delle 
    ```
 3. **Elaborazione della risposta JSON:** L'API restituisce una risposta in formato JSON. L'**ASI** utilizza la libreria [nlohmann/json](https://github.com/nlohmann/json) per analizzare questa risposta ed estrarre i dati rilevanti.
    ```json
-   // Esempio di struttura della risposta dell'SPC Integration API
+   // Esempio di struttura della risposta dell'AlderGrounds Integration API
    {
        "success": true,
        "data": {
@@ -129,7 +129,7 @@ Il **SA-MP Rich Presence** migliora significativamente la visualizzazione delle 
 
 ## Per gli Sviluppatori di Server
 
-L'integrazione del tuo server con l'[SPC Integration](https://github.com/spc-samp/spc-integration) porta una serie di benefici diretti e indiretti che aumentano la visibilità e l'engagement della tua comunità SA-MP. Se sei uno sviluppatore di server, considera i vantaggi strategici:
+L'integrazione del tuo server con l'[AlderGrounds Integration](https://github.com/aldergrounds/integration) porta una serie di benefici diretti e indiretti che aumentano la visibilità e l'engagement della tua comunità SA-MP. Se sei uno sviluppatore di server, considera i vantaggi strategici:
 
 1. **Potenzia il tuo brand:**
    - **Visibilità Premium:** Il logo personalizzato del tuo server non sarà solo un testo, ma un'immagine vibrante e accattivante, mostrata in evidenza nel profilo Discord di tutti i giocatori che utilizzano questo **ASI**. Questa è una forma organica e costante di branding.
@@ -138,17 +138,17 @@ L'integrazione del tuo server con l'[SPC Integration](https://github.com/spc-sam
    - **Moltiplica i canali di accesso:** Con la rotazione delle icone sociali, puoi promuovere diverse piattaforme della tua comunità – dal sito web ufficiale e il Discord del server fino alle tue pagine su YouTube, Instagram, Facebook o TikTok. Ogni icona e link nel **Discord Rich Presence** dirige direttamente gli interessati verso i luoghi in cui la tua comunità è attiva.
    - **Connettività istantanea:** La funzionalità di "Join" tramite Discord consente agli amici dei tuoi giocatori di entrare nel tuo server SA-MP con un solo clic, riducendo le barriere di ingresso e incoraggiando nuovi membri.
 3. **Aggiornamento semplificato dei contenuti:**
-   - Utilizzando l'[SPC Integration](https://github.com/spc-samp/spc-integration), qualsiasi aggiornamento al logo del tuo server o alla lista di social media configurati nel plugin [SPC Integration](https://github.com/spc-samp/spc-integration) **(lato server)** verrà riflesso automaticamente per i giocatori che utilizzano l'**ASI**, senza che debbano aggiornare l'**ASI**. Ciò garantisce che le informazioni siano sempre corrette e aggiornate.
+   - Utilizzando l'[AlderGrounds Integration](https://github.com/aldergrounds/integration), qualsiasi aggiornamento al logo del tuo server o alla lista di social media configurati nel plugin [AlderGrounds Integration](https://github.com/aldergrounds/integration) **(lato server)** verrà riflesso automaticamente per i giocatori che utilizzano l'**ASI**, senza che debbano aggiornare l'**ASI**. Ciò garantisce che le informazioni siano sempre corrette e aggiornate.
 
-### Come implementare l'SPC Integration nel tuo server:
+### Come implementare l'AlderGrounds Integration nel tuo server:
 
-1. **Plugin SPC Integration:** Il tuo server dovrà avere il plugin [SPC Integration](https://github.com/spc-samp/spc-integration) installato e configurato correttamente. Questo plugin è il ponte che invia le informazioni del tuo server a una lista di dati dell'**SPC**, che, di conseguenza, viene utilizzata dall'**SPC Integration API** per fornire informazioni pubbliche.
-2. **Configurazione:** Segui le istruzioni nel repository del plugin [SPC Integration](https://github.com/spc-samp/spc-integration) per configurare:
+1. **Plugin AlderGrounds Integration:** Il tuo server dovrà avere il plugin [AlderGrounds Integration](https://github.com/aldergrounds/integration) installato e configurato correttamente. Questo plugin è il ponte che invia le informazioni del tuo server a una lista di dati dell'**AlderGrounds**, che, di conseguenza, viene utilizzata dall'**AlderGrounds Integration API** per fornire informazioni pubbliche.
+2. **Configurazione:** Segui le istruzioni nel repository del plugin [AlderGrounds Integration](https://github.com/aldergrounds/integration) per configurare:
    - Il parametro `logo` con l'URL del logo del tuo server.
    - I parametri dei social media (`discord`, `website`, `youtube`, ecc.) con i link validi per le tue piattaforme.
 3. **Aggiornamento automatico:** Una volta che le informazioni sono configurate nel plugin del server, il **SA-MP Rich Presence** le rileverà e le mostrerà automaticamente. Non è necessaria alcuna azione da parte del giocatore oltre all'installazione iniziale dell'**ASI**.
 
-Integrando il tuo server con l'[SPC Integration](https://github.com/spc-samp/spc-integration), non solo migliori l'esperienza dei tuoi giocatori, ma apri anche le porte a una crescita e un engagement significativi per la tua comunità.
+Integrando il tuo server con l'[AlderGrounds Integration](https://github.com/aldergrounds/integration), non solo migliori l'esperienza dei tuoi giocatori, ma apri anche le porte a una crescita e un engagement significativi per la tua comunità.
 
 ## Architettura Tecnica Dettagliata
 
@@ -199,7 +199,7 @@ Il cuore dell'**ASI** risiede in `main.cpp`, che gestisce il ciclo di vita dell'
    
        // 4. Loop principale di aggiornamento
        while (is_running && v_server_manager && v_discord_manager) {
-           v_server_manager->Update(); // Consulta il server, l'API SPC, ecc.
+           v_server_manager->Update(); // Consulta il server, l'API AlderGrounds, ecc.
            v_discord_manager->Update_Presence( // Aggiorna lo stato di Discord
                v_server_manager->Get_Server_Info(),
                v_server_manager->Get_Display_Social_Link(),
@@ -321,7 +321,7 @@ La classe `Discord_Manager` astrae le interazioni con la libreria **Discord RPC*
 
 #### Gestore Server (`server_manager.cpp`)
 
-Il `Server_Manager` è l'orchestratore dei dati, gestendo lo stato della connessione, consultando il server e l'**SPC Integration API**, e decidendo quali informazioni devono essere visualizzate e quando.
+Il `Server_Manager` è l'orchestratore dei dati, gestendo lo stato della connessione, consultando il server e l'**AlderGrounds Integration API**, e decidendo quali informazioni devono essere visualizzate e quando.
 
 - **`Update()`**: Il ciclo di vita principale per la raccolta dei dati.
    ```cpp
@@ -505,7 +505,7 @@ La classe `Server_Query` è dedicata all'implementazione del protocollo di query
 
 #### Gestore URL (`url_manager.cpp`)
 
-La classe `URL_Manager` gestisce le comunicazioni HTTPS con l'**SPC Integration API**, un elemento centrale per le nuove funzionalità visive e sociali del **Discord Rich Presence**.
+La classe `URL_Manager` gestisce le comunicazioni HTTPS con l'**AlderGrounds Integration API**, un elemento centrale per le nuove funzionalità visive e sociali del **Discord Rich Presence**.
 
 - **`Get_Image_URL_And_Populate_Socials()`**: Il metodo di alto livello per recuperare le informazioni dall'API.
    ```cpp
@@ -601,7 +601,7 @@ src/
 ├── server_manager.hpp       # Definizione del gestore delle informazioni del server
 ├── server_query.hpp         # Definizione della logica di query al server SA-MP
 ├── server_types.hpp         # Definizioni delle strutture di dati del server
-├── url_manager.hpp          # Definizione del gestore URL per l'SPC Integration API
+├── url_manager.hpp          # Definizione del gestore URL per l'AlderGrounds Integration API
 └── utils.hpp                # Funzioni di utilità generali (conversione di stringhe)
 ```
 
@@ -644,7 +644,7 @@ La struttura `Server_Information` è la struttura primaria che memorizza i dati 
 
 #### Offuscamento dei Segreti (`secrets.hpp`)
 
-Questo file è dedicato alla protezione di informazioni sensibili, come il **Discord Application ID** e gli indirizzi dell'**SPC Integration API (per ora)**, da un reverse engineering facile.
+Questo file è dedicato alla protezione di informazioni sensibili, come il **Discord Application ID** e gli indirizzi dell'**AlderGrounds Integration API (per ora)**, da un reverse engineering facile.
 
 ```cpp
 // secrets.hpp (tratto)
@@ -866,7 +866,7 @@ Il SA-MP Rich Presence migliora significativamente l'esperienza sia per i giocat
    - **Identità Visiva Forte:** Un logo personalizzato e la rotazione dei link sociali consentono al tuo server di distinguersi e proiettare un'immagine professionale e moderna nell'ambiente Discord.
    - **Engagement Aumentato:** Facilita il percorso affinché nuovi e vecchi giocatori si connettano con le tue piattaforme sociali, rafforzando la tua comunità e l'engagement fuori dal gioco.
    - **Reclutamento Facilitato:** La funzione "Join" semplifica il processo per i nuovi giocatori, eliminando le barriere e incoraggiando la sperimentazione.
-   - **Dati Coerenti:** Attraverso l'integrazione con l'**SPC Integration API**, la visualizzazione delle informazioni è unificata e aggiornata centralmente, garantendo che il marchio e i contatti del tuo server siano sempre corretti.
+   - **Dati Coerenti:** Attraverso l'integrazione con l'**AlderGrounds Integration API**, la visualizzazione delle informazioni è unificata e aggiornata centralmente, garantendo che il marchio e i contatti del tuo server siano sempre corretti.
 
 ## Licenza
 

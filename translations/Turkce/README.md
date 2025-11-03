@@ -24,10 +24,10 @@
     - [Otomatik Güncelleme Sistemi](#otomatik-güncelleme-sistemi)
   - [Gereksinimler](#gereksinimler)
   - [Kurulum](#kurulum)
-  - [SPC Integration API ile Entegrasyon](#spc-integration-api-ile-entegrasyon)
+  - [AlderGrounds Integration API ile Entegrasyon](#aldergrounds-integration-api-ile-entegrasyon)
     - [Bilgi Nasıl Elde Edilir ve Kullanılır:](#bilgi-nasıl-elde-edilir-ve-kullanılır)
   - [Sunucu Geliştiricileri İçin](#sunucu-geliştiricileri-i̇çin)
-    - [Sunucunuza SPC Integration’ı Nasıl Uygularsınız:](#sunucunuza-spc-integrationı-nasıl-uygularsınız)
+    - [Sunucunuza AlderGrounds Integration’ı Nasıl Uygularsınız:](#sunucunuza-aldergrounds-integrationı-nasıl-uygularsınız)
   - [Detaylı Teknik Mimari](#detaylı-teknik-mimari)
       - [Ana Sistem (`main.cpp`)](#ana-sistem-maincpp)
       - [Güncelleme Sistemi (`asi_update.hpp`)](#güncelleme-sistemi-asi_updatehpp)
@@ -77,7 +77,7 @@ Bu özellik, kullanıcıların her zaman en son iyileştirmelere, hata düzeltme
 
 ## Gereksinimler
 
-- SA-MP istemcisi (eğer yoksa: [clients-samp](https://github.com/spc-samp /
+- SA-MP istemcisi (eğer yoksa: [clients-samp](https://github.com/aldergrounds /
 
 clients-samp)).
 - Discord Masaüstü uygulaması.
@@ -93,14 +93,14 @@ clients-samp)).
 4. Oyunu SA-MP istemcisi üzerinden başlatın.
 5. Bir sunucuya bağlandığınızda **ASI** otomatik olarak yüklenecek ve başlatılacak, Discord durumunuzu güncelleyecektir.
 
-## SPC Integration API ile Entegrasyon
+## AlderGrounds Integration API ile Entegrasyon
 
-**SA-MP Rich Presence**, **SPC Integration API** ile entegrasyonu sayesinde Discord’daki bilgi gösterimini önemli ölçüde geliştirir. Sadece temel sorgu verilerine dayanmak yerine, **ASI** artık bu API ile doğrudan etkileşime girerek sunucunun görsel ve sosyal bilgilerini alır. **SPC Integration** hakkında daha fazla bilgi için resmi depoyu ziyaret edin: [spc-samp/spc-integration](https://github.com/spc-samp/spc-integration).
+**SA-MP Rich Presence**, **AlderGrounds Integration API** ile entegrasyonu sayesinde Discord’daki bilgi gösterimini önemli ölçüde geliştirir. Sadece temel sorgu verilerine dayanmak yerine, **ASI** artık bu API ile doğrudan etkileşime girerek sunucunun görsel ve sosyal bilgilerini alır. **AlderGrounds Integration** hakkında daha fazla bilgi için resmi depoyu ziyaret edin: [aldergrounds/integration](https://github.com/aldergrounds/integration).
 
 ### Bilgi Nasıl Elde Edilir ve Kullanılır:
 
 1. **Adres Formatlama:** Oyuncu bir sunucuya bağlandığında (IP ve Port), **ASI** bu adresi (`IP:PORT`) kullanıcı dostu bir formata (`IP-PORT`) dönüştürerek API isteğine hazırlar.
-2. **API’ye İstek:** **ASI**, formatlanmış IP ve portu içeren bir `GET` isteğini **SPC Integration API**’nin endpoint’ine gönderir. İstek URL’sinin dahili olarak nasıl oluşturulduğuna bir örnek:
+2. **API’ye İstek:** **ASI**, formatlanmış IP ve portu içeren bir `GET` isteğini **AlderGrounds Integration API**’nin endpoint’ine gönderir. İstek URL’sinin dahili olarak nasıl oluşturulduğuna bir örnek:
    ```cpp
    // url_manager.cpp’den uyarlanmış bölüm
    auto api_path_accessor = DRALYXOR_SECURE(Secrets::Detail::Get_API_Path());
@@ -110,7 +110,7 @@ clients-samp)).
    ```
 3. **JSON Yanıtının İşlenmesi:** API, JSON formatında bir yanıt döndürür. **ASI**, bu yanıtı ayrıştırmak ve ilgili verileri çıkarmak için [nlohmann/json](https://github.com/nlohmann/json) kütüphanesini kullanır.
    ```json
-   // SPC Integration API’den Yanıt Yapısı Örneği
+   // AlderGrounds Integration API’den Yanıt Yapısı Örneği
    {
        "success": true,
        "data": {
@@ -131,7 +131,7 @@ clients-samp)).
 
 ## Sunucu Geliştiricileri İçin
 
-Sunucunuzu [SPC Integration](https://github.com/spc-samp/spc-integration) ile entegre etmek, SA-MP topluluğunuzun görünürlüğünü ve katılımını artıran bir dizi doğrudan ve dolaylı avantaj sağlar. Sunucu geliştiricisiyseniz, stratejik avantajları düşünün:
+Sunucunuzu [AlderGrounds Integration](https://github.com/aldergrounds/integration) ile entegre etmek, SA-MP topluluğunuzun görünürlüğünü ve katılımını artıran bir dizi doğrudan ve dolaylı avantaj sağlar. Sunucu geliştiricisiyseniz, stratejik avantajları düşünün:
 
 1. **Markanızı Güçlendirin:**
    - **Öncelikli Görünürlük:** Sunucunuzun özelleştirilmiş logosu, yalnızca bir metin değil, tüm oyuncuların Discord profillerinde öne çıkan canlı ve dikkat çekici bir görsel olarak gösterilir. Bu, organik ve sürekli bir markalaşma yöntemidir.
@@ -140,17 +140,17 @@ Sunucunuzu [SPC Integration](https://github.com/spc-samp/spc-integration) ile en
    - **Erişim Kanallarını Çoğaltın:** Sosyal ikon rotasyonu ile sunucunuzun resmi web sitesi, Discord, YouTube, Instagram, Facebook veya TikTok sayfalarını tanıtabilirsiniz. **Discord Rich Presence**’taki her ikon ve bağlantı, ilgilenenleri doğrudan topluluğunuzun aktif olduğu platformlara yönlendirir.
    - **Anında Bağlantı:** Discord üzerinden "Join" özelliği, oyuncularınızın arkadaşlarının tek bir tıkla sunucunuza katılmasını sağlar, giriş engellerini azaltır ve yeni üyeleri teşvik eder.
 3. **Kolaylaştırılmış İçerik Güncelleme:**
-   - [SPC Integration](https://github.com/spc-samp/spc-integration) kullanıldığında, sunucu logosu veya sosyal medya bağlantılarında yapılan herhangi bir güncelleme, **ASI** kullanan oyuncular için otomatik olarak yansıtılır, **ASI**’nin güncellenmesine gerek kalmadan. Bu, bilgilerin her zaman doğru ve güncel olmasını sağlar.
+   - [AlderGrounds Integration](https://github.com/aldergrounds/integration) kullanıldığında, sunucu logosu veya sosyal medya bağlantılarında yapılan herhangi bir güncelleme, **ASI** kullanan oyuncular için otomatik olarak yansıtılır, **ASI**’nin güncellenmesine gerek kalmadan. Bu, bilgilerin her zaman doğru ve güncel olmasını sağlar.
 
-### Sunucunuza SPC Integration’ı Nasıl Uygularsınız:
+### Sunucunuza AlderGrounds Integration’ı Nasıl Uygularsınız:
 
-1. **SPC Integration Eklentisi:** Sunucunuzda [SPC Integration](https://github.com/spc-samp/spc-integration) eklentisinin kurulu ve doğru şekilde yapılandırılmış olması gerekir. Bu eklenti, sunucunuzun bilgilerini **SPC** veri listesine gönderen bir köprüdür ve bu bilgiler **SPC Integration API** tarafından genel kullanıma sunulur.
-2. **Yapılandırma:** [SPC Integration](https://github.com/spc-samp/spc-integration) deposundaki talimatları takip ederek:
+1. **AlderGrounds Integration Eklentisi:** Sunucunuzda [AlderGrounds Integration](https://github.com/aldergrounds/integration) eklentisinin kurulu ve doğru şekilde yapılandırılmış olması gerekir. Bu eklenti, sunucunuzun bilgilerini **AlderGrounds** veri listesine gönderen bir köprüdür ve bu bilgiler **AlderGrounds Integration API** tarafından genel kullanıma sunulur.
+2. **Yapılandırma:** [AlderGrounds Integration](https://github.com/aldergrounds/integration) deposundaki talimatları takip ederek:
    - Sunucunuzun logosunun URL’sini `logo` parametresiyle ayarlayın.
    - Sosyal medya parametrelerini (`discord`, `website`, `youtube`, vb.) platformlarınızın geçerli bağlantılarıyla yapılandırın.
 3. **Otomatik Güncelleme:** Bilgiler eklentide yapılandırıldığında, **SA-MP Rich Presence** bunları otomatik olarak algılar ve gösterir. Oyuncunun yalnızca ilk **ASI** kurulumunu yapması gerekir.
 
-Sunucunuzu [SPC Integration](https://github.com/spc-samp/spc-integration) ile entegre ederek, oyuncularınızın deneyimini geliştirmenin yanı sıra topluluğunuz için önemli bir büyüme ve katılım fırsatı yaratırsınız.
+Sunucunuzu [AlderGrounds Integration](https://github.com/aldergrounds/integration) ile entegre ederek, oyuncularınızın deneyimini geliştirmenin yanı sıra topluluğunuz için önemli bir büyüme ve katılım fırsatı yaratırsınız.
 
 ## Detaylı Teknik Mimari
 
@@ -201,7 +201,7 @@ Sunucunuzu [SPC Integration](https://github.com/spc-samp/spc-integration) ile en
    
        // 4. Ana Güncelleme Döngüsü
        while (is_running && v_server_manager && v_discord_manager) {
-           v_server_manager->Update(); // Sunucu sorgulama, SPC API vb.
+           v_server_manager->Update(); // Sunucu sorgulama, AlderGrounds API, vb.
            v_discord_manager->Update_Presence( // Discord durumunu günceller
                v_server_manager->Get_Server_Info(),
                v_server_manager->Get_Display_Social_Link(),
@@ -323,7 +323,7 @@ Bu hayati modül, kullanıcıların güncel kalmasını sağlamak için **ASI**�
 
 #### Sunucu Yöneticisi (`server_manager.cpp`)
 
-`Server_Manager`, bağlantı durumunu, sunucu ve **SPC Integration API** sorgularını yönetir ve hangi bilgilerin ne zaman gösterileceğine karar verir.
+`Server_Manager`, bağlantı durumunu, sunucu ve **AlderGrounds Integration API** sorgularını yönetir ve hangi bilgilerin ne zaman gösterileceğine karar verir.
 
 - **`Update()`**: Veri toplama için ana yaşam döngüsü.
    ```cpp
@@ -508,7 +508,7 @@ Bu hayati modül, kullanıcıların güncel kalmasını sağlamak için **ASI**�
 
 #### URL Yöneticisi (`url_manager.cpp`)
 
-`URL_Manager` sınıfı, **SPC Integration API** ile HTTPS iletişimlerini yönetir ve **Discord Rich Presence**’ın yeni görsel ve sosyal özelliklerinin temel bir bileşenidir.
+`URL_Manager` sınıfı, **AlderGrounds Integration API** ile HTTPS iletişimlerini yönetir ve **Discord Rich Presence**’ın yeni görsel ve sosyal özelliklerinin temel bir bileşenidir.
 
 - **`Get_Image_URL_And_Populate_Socials()`**: API’den bilgi almak için üst düzey yöntem.
    ```cpp
@@ -604,7 +604,7 @@ src/
 ├── server_manager.hpp       # Sunucu bilgisi yöneticisinin tanımı
 ├── server_query.hpp         # SA-MP sunucu sorgulama mantığının tanımı
 ├── server_types.hpp         # Sunucu veri yapılarının tanımları
-├── url_manager.hpp          # SPC Integration API için URL yöneticisinin tanımı
+├── url_manager.hpp          # AlderGrounds Integration API için URL yöneticisinin tanımı
 └── utils.hpp                # Genel yardımcı fonksiyonlar (string dönüşümleri)
 ```
 
@@ -647,7 +647,7 @@ struct Server_Information {
 
 #### Gizli Bilgilerin Şifrelenmesi (`secrets.hpp`)
 
-Bu dosya, **Discord Application ID** ve **SPC Integration API** adresleri gibi hassas bilgilerin tersine mühendislikten korunmasını sağlar.
+Bu dosya, **Discord Application ID** ve **AlderGrounds Integration API** adresleri gibi hassas bilgilerin tersine mühendislikten korunmasını sağlar.
 
 ```cpp
 // secrets.hpp (bölüm)
@@ -868,7 +868,7 @@ namespace Utils {
    - **Güçlü Görsel Kimlik:** Özelleştirilmiş logo ve sosyal bağlantı rotasyonu, sunucunuzun profesyonel ve modern bir imaj yansıtmasını sağlar.
    - **Artırılmış Katılım:** Yeni ve mevcut oyuncuların sosyal platformlarınıza bağlanmasını kolaylaştırarak topluluğunuzu güçlendirir ve oyun dışı katılımı artırır.
    - **Kolaylaştırılmış Oyuncu Alımı:** "Join" özelliği, yeni oyuncuların katılımını hızlandırır, engelleri kaldırır ve denemeyi teşvik eder.
-   - **Tutarlı Veriler:** **SPC Integration API** entegrasyonu ile bilgi gösterimi birleştirilir ve merkezi olarak güncellenir, sunucunuzun markasının ve iletişim bilgilerinin her zaman doğru olmasını sağlar.
+   - **Tutarlı Veriler:** **AlderGrounds Integration API** entegrasyonu ile bilgi gösterimi birleştirilir ve merkezi olarak güncellenir, sunucunuzun markasının ve iletişim bilgilerinin her zaman doğru olmasını sağlar.
 
 ## Lisans
 

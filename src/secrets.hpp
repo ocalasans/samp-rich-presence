@@ -42,7 +42,7 @@ namespace Secrets {
         }
 
         inline auto& Get_Obfuscated_API_Path() {
-            static auto& API_path_obfuscated = DRALYXOR_KEY("/path/spc-integration-api.php", "KEY_THAT_ONLY_YOU_KNOW");
+            static auto& API_path_obfuscated = DRALYXOR_KEY("/path/integration-api.php", "KEY_THAT_ONLY_YOU_KNOW");
 
             return API_path_obfuscated;
         }
